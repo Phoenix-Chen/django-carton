@@ -12,3 +12,10 @@ def get_product_model():
     """
     package, module = settings.CART_PRODUCT_MODEL.rsplit('.', 1)
     return getattr(import_module(package), module)
+
+def get_option_model():
+    """
+    Returns the option model that is used by this cart.
+    """
+    package, module = settings.CART_OPTION_MODEL.rsplit('.', 1)
+    return getattr(import_module(package), module)
