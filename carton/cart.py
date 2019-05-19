@@ -53,14 +53,14 @@ class Cart(object):
             for item in cart_representation:
                 try:
                     product = None
-                    if item.product_pk in products_cache:
-                        product = products_cache[item.product_pk]
+                    if item['product_pk'] in products_cache:
+                        product = products_cache[item['product_pk']]
                     else:
-                        product = self.get_product_queryset().get(pk=item.product_pk)
-                        products_cache[item.product_pk] = product
+                        product = self.get_product_queryset().get(pk=item['product_pk'])
+                        products_cache[item['product_pk']] = product
 
                     options = []
-                    for option_pk in item.option_pks:
+                    for option_pk in item['option_pks']:
                         if option_pk in options_cache:
                             options.append(options_cache[option_pk])
                         else:
@@ -85,8 +85,8 @@ class Cart(object):
         """
         cart_items = self.cart_serializable
         for i in range(len(cart_items)):
-            if cart_items[i].product_pk == product.pk:
-                if sorted(cart_items[i].option_pks) == sorted([i.pk for i in options]):
+            if cart_items[i]['product_pk'] == product.pk:
+                if sorted(cart_items[i]['option_pks']) == sorted([i.pk for i in options]):
                     return i
         return -1
 
