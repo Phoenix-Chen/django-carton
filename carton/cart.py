@@ -10,10 +10,11 @@ class CartItem(object):
     """
     A cart item, with the associated product, its quantity and its price.
     """
-    def __init__(self, product, options, quantity):
+    def __init__(self, product, options, quantity, note):
         self.product = product
         self.options = options
         self.quantity = int(quantity)
+        self.note = str(note)
 
     def __repr__(self):
         return u'CartItem Object (%s)' % self.product
@@ -22,7 +23,8 @@ class CartItem(object):
         return {
             'product_pk': self.product.pk,
             'option_pks': [i.pk for i in self.options],
-            'quantity': self.quantity
+            'quantity': self.quantity,
+            'note': self.note
         }
 
     @property
@@ -66,7 +68,7 @@ class Cart(object):
                             options.append(option)
                             options_cache[option_pk] = option
                     self._items_list.append(CartItem(
-                        product, options, item['quantity']
+                        product, options, item['quantity'], item['note']
                     ))
                 except Exception as e:
                     print(e)
@@ -131,7 +133,7 @@ class Cart(object):
         self.session[self.session_key] = self.cart_serializable
         self.session.modified = True
 
-    def add(self, product, options=[], quantity=1):
+    def add(self, product, options=[], quantity=1, note=''):
         """
         Adds or creates products in cart. For an existing product,
         the quantity is increased and the price is ignored.
@@ -142,8 +144,10 @@ class Cart(object):
         item_index = self.__index__(product, options)
         if item_index != -1:
             self._items_list[item_index].quantity += quantity
+            if note != '':
+                self._items_list[item_index].note += note
         else:
-            self._items_list.append(CartItem(product, options, quantity))
+            self._items_list.append(CartItem(product, options, quantity, note))
         self.update_session()
 
     def remove(self, product):
@@ -186,6 +190,16 @@ class Cart(object):
             self._items_list[item_index].quantity = quantity
             if self._items_list[item_index].quantity < 1:
                 del self._items_list[item_index]
+            self.update_session()
+
+    def set_note(self, product, note, options=[]):
+        """
+        Sets the product's note.
+        """
+        note = str(note)
+        item_index = self.__index__(product, options)
+        if item_index != -1:
+            self._items_list[item_index].note = note
             self.update_session()
 
     @property
