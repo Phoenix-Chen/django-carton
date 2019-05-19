@@ -39,7 +39,7 @@ class Cart(object):
     A cart that lives in the session.
     """
     def __init__(self, session, session_key=None):
-        self._items_dict = []
+        self._items_list = []
         self.session = session
         self.session_key = session_key or carton_settings.CART_SESSION_KEY
             # If a cart representation was previously stored in session, then we
@@ -65,7 +65,7 @@ class Cart(object):
                             option = self.get_option_queryset().get(pk=option_pk)
                             options.append(option)
                             options_cache[option_pk] = option
-                    self._items_dict.append(CartItem(
+                    self._items_list.append(CartItem(
                         product, options, item['quantity']
                     ))
                 except Exception as e:
@@ -79,7 +79,7 @@ class Cart(object):
 
     def __index__(self, product, options=[]):
         """
-        Return the index of the product with options in _items_dict. Return -1 if not found.
+        Return the index of the product with options in _items_list. Return -1 if not found.
         """
         cart_items = self.cart_serializable
         for i in range(len(cart_items)):
@@ -141,9 +141,9 @@ class Cart(object):
             raise ValueError('Quantity must be at least 1 when adding to cart')
         item_index = self.__index__(product, options)
         if item_index != -1:
-            self._items_dict[item_index].quantity += quantity
+            self._items_list[item_index].quantity += quantity
         else:
-            self._items_dict.append(CartItem(product, options, quantity))
+            self._items_list.append(CartItem(product, options, quantity))
         self.update_session()
 
     def remove(self, product):
@@ -152,7 +152,7 @@ class Cart(object):
         """
         item_index = self.__index__(product, options)
         if item_index != -1:
-            del self._items_dict[item_index]
+            del self._items_list[item_index]
             self.update_session()
 
     def remove_single(self, product):
@@ -161,17 +161,17 @@ class Cart(object):
         """
         item_index = self.__index__(product, options)
         if item_index != -1:
-            if self._items_dict[item_index].quantity <= 1:
-                del self._items_dict[item_index]
+            if self._items_list[item_index].quantity <= 1:
+                del self._items_list[item_index]
             else:
-                self._items_dict[item_index].quantity -= 1
+                self._items_list[item_index].quantity -= 1
             self.update_session()
 
     def clear(self):
         """
         Removes all items.
         """
-        self._items_dict = []
+        self._items_list = []
         self.update_session()
 
     def set_quantity(self, product, quantity, options=[]):
@@ -183,9 +183,9 @@ class Cart(object):
             raise ValueError('Quantity must be positive when updating cart')
         item_index = self.__index__(product, options)
         if item_index != -1:
-            self._items_dict[item_index].quantity = quantity
-            if self._items_dict[item_index].quantity < 1:
-                del self._items_dict[item_index]
+            self._items_list[item_index].quantity = quantity
+            if self._items_list[item_index].quantity < 1:
+                del self._items_list[item_index]
             self.update_session()
 
     @property
@@ -193,7 +193,7 @@ class Cart(object):
         """
         The list of cart items.
         """
-        return self._items_dict
+        return self._items_list
 
     @property
     def cart_serializable(self):
@@ -222,7 +222,7 @@ class Cart(object):
         """
         The number of unique items in cart, regardless of the quantity.
         """
-        return len(self._items_dict)
+        return len(self._items_list)
 
     @property
     def is_empty(self):
