@@ -150,7 +150,7 @@ class Cart(object):
             self._items_list.append(CartItem(product, options, quantity, note))
         self.update_session()
 
-    def remove(self, product):
+    def remove(self, product, options=[]):
         """
         Removes the product.
         """
@@ -159,7 +159,7 @@ class Cart(object):
             del self._items_list[item_index]
             self.update_session()
 
-    def remove_single(self, product):
+    def remove_single(self, product, options=[]):
         """
         Removes a single product by decreasing the quantity.
         """
